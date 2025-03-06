@@ -105,6 +105,25 @@ pane.addBinding(lightPosition, 'bootyLightZ', { min: -30, max: 30, step: 0.1 }).
   pointLight.position.z = ev.value; // Update the z position of the point light
 });
 
+//using the .on method//
+//1. pane.addBinding(lightPosition, 'bootyLightX', { min: -30, max: 30, step: 0.1 })
+//this is part is about binding the values of a property (lightPosition.x) to a slider in the Tweakpane UI
+//2. .on('change', (ev) => {...})
+//this method listens to changes to the bound value, and it triggers a function when the value of the slider changes
+//change: This is the event type. When the value of the slider changes (eg, when the user moves the slider) this event is fired
+//second arugment is the callback function (will run when the event is triggered)
+//ev (event object) is passed to the callback function when the change event is fired
+//it contains the updated value of the sldier and additional information about the event
+//Specifically, ev.value gives us the new value that the slider has been adjusted to
+//3. pointLight.position.x = ev.value;
+//pointLight.position.x is the current x position of the light in the scene.
+//ev.value is the new value from the slider that the user has adjusted
+//Bu assigning the ev.value to the pointLight.position.x, we move the point light along the x axis to the new position set by the slider
+
+
+
+
+
 
 // Add an AxesHelper to visualize the position of the light
 const lightAxesHelper = new THREE.AxesHelper(1); // Adjust size as needed
