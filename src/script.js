@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
 import { Pane } from "tweakpane";
 
 // initialize the pane
@@ -8,26 +9,115 @@ const pane = new Pane();
 // initialize the scene
 const scene = new THREE.Scene();
 
-// initialize the geometry
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-
 // initialize the material
-const material = new THREE.MeshBasicMaterial({
-  color: 0x00ff00,
+const material = new THREE.MeshStandardMaterial({
+  color: 0xFFB6C1,
 });
 
-// initialize the mesh
-const mesh = new THREE.Mesh(geometry, material);
-scene.add(mesh);
+material.roughness = 0.22;     // Controls how rough the surface is (lower = shinier)
+material.metalness = 0.69;     // Controls how metallic the surface is
+material.transparent = true;
+material.opacity = 0.99;
+
+
+pane.addBinding(material, 'roughness', {
+  min: 0.00,
+  max: 0.9,
+  step: 0.01
+})
+
+pane.addBinding(material, 'metalness', {
+  min: 0.00,
+  max: 0.96,
+  step: 0.01
+})
+
+pane.addBinding(material, 'opacity', {
+  min: 0.00,
+  max: 1,
+  step: 0.01
+})
+
+// Function to load STL model
+const loader = new STLLoader();
+loader.load("uploads_files_3414844_Slim+low+poly.stl", (geometry) => {
+  const mesh = new THREE.Mesh(geometry, material);
+
+
+  // Compute bounding box before scaling
+  geometry.computeBoundingBox();
+  const center = new THREE.Vector3();
+  geometry.boundingBox.getCenter(center);
+
+  // Apply scaling
+  mesh.scale.set(0.5, 0.5, 0.5); // Example scale
+
+  // Recompute bounding box after scaling
+  geometry.computeBoundingBox();
+  const newCenter = new THREE.Vector3();
+  geometry.boundingBox.getCenter(newCenter);
+
+  // Adjust position to recenter the model
+  mesh.position.sub(newCenter);
+ 
+  // Move the model 
+  mesh.position.y += 70;
+  mesh.position.x += 50;
+  mesh.position.z += 100;
+
+
+  mesh.rotation.x = THREE.MathUtils.degToRad(-90); // Converts degrees to radians
+
+  const meshAxesHelper = new THREE.AxesHelper(5); // Adjust size as needed
+  // Position the AxesHelper relative to the mesh's new position
+  meshAxesHelper.position.set(0, 0, 0); // This should be at the mesh's originnow
+  //mesh.add(meshAxesHelper); // Attach to mesh instead of scene
+
+  // Add to scene
+  scene.add(mesh);
+
+});
+
+
+//initialize the light
+const light = new THREE.AmbientLight(0xffffff, 1) //jsut raising lumen values equally with ambient light
+scene.add(light);
+
+const pointLight = new THREE.PointLight(0xffffff, 12000);
+pointLight.position.set(0, 20, 5);
+scene.add(pointLight)
+
+// Create an object to hold the light position values
+const lightPosition = {
+  bootyLightX: pointLight.position.x,
+  bootyLightY: pointLight.position.y,
+  bootyLightZ: pointLight.position.z,
+};
+
+// Add bindings for the x, y, and z sliders
+pane.addBinding(lightPosition, 'bootyLightX', { min: -30, max: 30, step: 0.1 }).on('change', (ev) => {
+  pointLight.position.x = ev.value; // Update the x position of the point light
+});
+pane.addBinding(lightPosition, 'bootyLightY', { min: -5, max: 30, step: 0.1 }).on('change', (ev) => {
+  pointLight.position.y = ev.value; // Update the y position of the point light
+});
+pane.addBinding(lightPosition, 'bootyLightZ', { min: -30, max: 30, step: 0.1 }).on('change', (ev) => {
+  pointLight.position.z = ev.value; // Update the z position of the point light
+});
+
+
+// Add an AxesHelper to visualize the position of the light
+const lightAxesHelper = new THREE.AxesHelper(1); // Adjust size as needed
+pointLight.add(lightAxesHelper); // Attach it to the light
 
 // initialize the camera
 const camera = new THREE.PerspectiveCamera(
-  35,
+  75,
   window.innerWidth / window.innerHeight,
   0.1,
-  200
+  500
 );
-camera.position.z = 5;
+camera.position.z = 75;
 
 // initialize the renderer
 const canvas = document.querySelector("canvas.threejs");
@@ -41,12 +131,20 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 // instantiate the controls
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
+controls.autoRotate = true;
+controls.enableZoom = false; // Disable zoom to prevent scaling
+controls.enablePan = false;
 
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+
+const axesHelper = new THREE.AxesHelper(5); // 5 is the size of the axes
+scene.add(axesHelper);
+
 
 // render the scene
 const renderloop = () => {

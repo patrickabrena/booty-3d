@@ -1,0 +1,31 @@
+body {
+    margin: 0;
+    overflow: hidden;
+  }
+
+ 
+
+  #overlayText {
+    position: absolute;
+    width: 100%;  
+    height: min-content; 
+    top: 0;
+    left: 0;
+    margin-top: 12rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;  
+    align-items: center;  
+    color: white;
+    font-size: 36px;
+    z-index: 10; /* Ensures it appears on top of the canvas */
+  }
+
+
+  /* Media Query for Mobile Devices */
+@media (max-width: 768px) {
+  #overlayText {
+    font-size: 36px !important; /* Increase font size on smaller screens */
+  }
+}
