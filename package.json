@@ -2,7 +2,7 @@
   "name": "booty-3d",
   "version": "1.0.0",
   "scripts": {
-    "build": "vite build", 
+    "build": "vite build",
     "dev": "vite",
     "deploy": "gh-pages -d dist"
   },
